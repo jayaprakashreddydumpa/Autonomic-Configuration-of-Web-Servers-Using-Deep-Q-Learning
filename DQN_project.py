@@ -10,7 +10,8 @@ import time
 import random
 from tqdm import tqdm
 import os
-import cv2
+# import cv2
+import re
 np.warnings.filterwarnings('ignore')
 
 DISCOUNT = 0.99
@@ -140,11 +141,10 @@ class Apache_environment:
     line = ""
     for line in search.readlines():
         if string in line:
-            req_per_second = line
+            req_per_second = re.sub('[^\d\.]', '', line)
             break 
     self.def_perf = req_per_second
 
-    {"MaxRequestWorkers":0,"KeepAliveTimeOut":1,"MinSpareThreads":2,"MaxSpareThreads":3,"ThreadsPerChild":4,"MaxConnectionsPerChild":5,"ServerLimit":6,"StartServers":7}
     def reset(self):
         return [256,2,128,192,64,5000,4,2]
 
@@ -164,7 +164,7 @@ class Apache_environment:
             if current_state[param_index] >  current_state[6]: #since ServerLimit is modified, it dependent param "MaxSpareThreads" needs to be modified
                 current_state[6] =  current_state[6] + abs(current_state[param_index] - current_state[6])
                 current_state[3] = current_state[6]*current_state[param_index]
-                
+
             #since ServerLimit is modified, it dependent param "MaxSpareThreads" needs to be modified
             current_state[2] = current_state[param_index]*current_state[param_index]
         
@@ -181,19 +181,19 @@ class Apache_environment:
         return reward - def_perf
 
     def get_reward(self,cur_state):
-        value_dict = { MaxRequestWorkers:cur_state[0],
-        KeepAliveTimeOut : cur_state[1],
-        MinSpareThreads : cur_state[2],
-        MaxSpareThreads : cur_state[3],
-        ThreadsPerChild : cur_state[4],
-        MaxConnectionsPerChild : cur_state[5],
-        ServerLimit : cur_state[6],
-        StartServers : cur_state[7]}
+        value_dict = { 'MaxRequestWorkers':cur_state[0],
+        'KeepAliveTimeOut' : cur_state[1],
+        'MinSpareThreads' : cur_state[2],
+        'MaxSpareThreads' : cur_state[3],
+        'ThreadsPerChild' : cur_state[4],
+        'MaxConnectionsPerChild' : cur_state[5],
+        'ServerLimit' : cur_state[6],
+        'StartServers' : cur_state[7]}
 
         line_numbers = [23,25,20,21,22,24,18,19]
         i = 0
         for key,value in value_dict:
-            command = "sed '" + str(line_numbers[i]) + "s/" + str(key) + "*/" + str(key) + "    " + str(value) + "/'  /opt/bitnami/apache2/conf/bitnami/httpd.conf"
+            command = "sed -i -n '" + str(line_numbers[i]) + "s/" + str(key) + "*/" + str(key) + "    " + str(value) + "/'  /opt/bitnami/apache2/conf/bitnami/httpd.conf"
             os.system(command)
             i += 1 
 
@@ -203,7 +203,7 @@ class Apache_environment:
         string = "Requests per second:"
         for line in search.readlines():
             if string in line:
-                req_per_second = line
+                req_per_second = re.sub('[^\d\.]', '', line)
                 break 
         
         return float(req_per_second) - self.def_perf
