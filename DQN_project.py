@@ -13,6 +13,7 @@ import os
 # import cv2
 import re
 np.warnings.filterwarnings('ignore')
+import subprocess
 
 DISCOUNT = 0.99
 REPLAY_MEMORY_SIZE = 50_000  # How many last steps to keep for model training
@@ -135,15 +136,17 @@ class ModifiedTensorBoard(TensorBoard):
 class Apache_environment:
 
     #Getting the default performance using the initial values
-    os.system("ab -n 1000 -c 100 -r https://54.191.74.174/ >/home/output.txt 2>&1")
-    search = open("/home/output.txt")
-    string = "Requests per second:"
+    return_code = subprocess.call("ab -n 1000 -c 100 -r https://54.191.74.174/ >/home/output.txt 2>&1",shell=True)
     line = ""
-    for line in search.readlines():
-        if string in line:
-            req_per_second = re.sub('[^\d\.]', '', line)
-            break 
-    self.def_perf = req_per_second
+    req_per_second = ""
+    if return_code == 0:
+        search = open("/home/output.txt")
+        string = "Requests per second:"
+        for line in search.readlines():
+            if string in line:
+                req_per_second = re.sub('[^\d\.]', '', line)
+                break 
+    def_perf = req_per_second
 
     def reset(self):
         return [256,2,128,192,64,5000,4,2]
@@ -175,10 +178,10 @@ class Apache_environment:
         return new_state, reward
 
     def get_simulated_reward(self):
-        def_perf = 7.01
+        # def_perf = 7.01
         # reward = virtual_rewards[all_states.index(cur_state)]
         reward = np.random.randint(10,100)
-        return reward - def_perf
+        return reward - Apache_environment.def_perf
 
     def get_reward(self,cur_state):
         value_dict = { 'MaxRequestWorkers':cur_state[0],
@@ -192,21 +195,23 @@ class Apache_environment:
 
         line_numbers = [23,25,20,21,22,24,18,19]
         i = 0
-        for key,value in value_dict:
-            command = "sed -i -n '" + str(line_numbers[i]) + "s/" + str(key) + "*/" + str(key) + "    " + str(value) + "/'  /opt/bitnami/apache2/conf/bitnami/httpd.conf"
+        for key,value in value_dict.items():
+            command = "sed -i '" + str(line_numbers[i]) + "s/" + str(key) + "*/" + str(key) + "    " + str(value) + "/'  /opt/bitnami/apache2/conf/bitnami/httpd.conf"
             os.system(command)
             i += 1 
 
-        os.system("sudo /opt/bitnami/ctlscript.sh restart apache")
-        os.system("ab -n 1000 -c 100 -r https://54.191.74.174/ >/home/output.txt 2>&1")
-        search = open("/home/output.txt")
-        string = "Requests per second:"
-        for line in search.readlines():
-            if string in line:
-                req_per_second = re.sub('[^\d\.]', '', line)
-                break 
+        return_val = subprocess.call("sudo /opt/bitnami/ctlscript.sh restart apache",shell=True)
+        if return_val == 0:
+            return_code = subprocess.call("ab -n 1000 -c 100 -r https://54.191.74.174/ >/home/output.txt 2>&1",shell=True)
+            if return_code == 0:
+                search = open("/home/output.txt")
+                string = "Requests per second:"
+                for line in search.readlines():
+                    if string in line:
+                        req_per_second = re.sub('[^\d\.]', '', line)
+                        break 
         
-        return float(req_per_second) - self.def_perf
+        return float(req_per_second) - Apache_environment.def_perf
 
 #-----------------------------------------------------------------------------------------------------------
 #DEFINING THE DEEP-Q NETWORK AGENT
