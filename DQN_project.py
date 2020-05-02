@@ -146,12 +146,13 @@ class Apache_environment:
             if string in line:
                 req_per_second = re.sub('[^\d\.]', '', line)
                 break 
-    def_perf = req_per_second
-
+    def_perf = float(req_per_second)
+    total_req = 1000
+    concurrent_req = 100
     def reset(self):
         return [256,2,128,192,64,5000,4,2]
 
-    def step(self,action,current_state):
+    def step(self,action,current_state,episode):
         parameter = action_space[action][0]
         param_index = state_list.get(parameter)
         if param_index == 1: #if keepAliveTimeOut is increased, dont have to change other param values
@@ -173,8 +174,11 @@ class Apache_environment:
         
 
         new_state = current_state
-        
-        reward = self.get_reward(current_state)
+        if episode%30 == 0:
+            Apache_environment.total_req = np.random.randint(1000,10000)
+            Apache_environment.concurrent_req = np.random.randint(10,2500)
+
+        reward = self.get_reward(current_state,Apache_environment.total_req,Apache_environment.concurrent_req)
         return new_state, reward
 
     def get_simulated_reward(self):
@@ -183,7 +187,7 @@ class Apache_environment:
         reward = np.random.randint(10,100)
         return reward - Apache_environment.def_perf
 
-    def get_reward(self,cur_state):
+    def get_reward(self,cur_state,Apache_environment.total_req,Apache_environment.concurrent_req):
         value_dict = { 'MaxRequestWorkers':cur_state[0],
         'KeepAliveTimeOut' : cur_state[1],
         'MinSpareThreads' : cur_state[2],
@@ -196,13 +200,17 @@ class Apache_environment:
         line_numbers = [23,25,20,21,22,24,18,19]
         i = 0
         for key,value in value_dict.items():
-            command = "sed -i '" + str(line_numbers[i]) + "s/" + str(key) + "*/" + str(key) + "    " + str(value) + "/'  /opt/bitnami/apache2/conf/bitnami/httpd.conf"
-            os.system(command)
+            command = "sed -i '" + str(line_numbers[i]) + "s/" + str(key) + ".*/" + str(key) + "    " + str(value) + "/'  /opt/bitnami/apache2/conf/bitnami/httpd.conf"
+            run = subprocess.call(command,shell=True)
+            if run != 0:
+                print("Error code: Couldnt execute sed command")
+                exit()
             i += 1 
 
         return_val = subprocess.call("sudo /opt/bitnami/ctlscript.sh restart apache",shell=True)
         if return_val == 0:
-            return_code = subprocess.call("ab -n 1000 -c 100 -r https://54.191.74.174/ >/home/output.txt 2>&1",shell=True)
+            ab_command = "ab -n " +str(Apache_environment.total_req) + " " + str(Apache_environment.concurrent_req) + " -r https://54.191.74.174/ >/home/output.txt 2>&1"
+            return_code = subprocess.call(ab_command,shell=True)
             if return_code == 0:
                 search = open("/home/output.txt")
                 string = "Requests per second:"
@@ -367,7 +375,7 @@ for episode in tqdm(range(1, EPISODES + 1), ascii=True, unit='episodes'):
             action = np.random.randint(0, 24)
 
         # new_state, reward, done = env.step(action)
-        new_state, reward= env.step(action,current_state)
+        new_state, reward= env.step(action,current_state,episode)
 
         # Transform new continous state to new discrete state and count reward
         episode_reward.append(reward)
@@ -378,7 +386,7 @@ for episode in tqdm(range(1, EPISODES + 1), ascii=True, unit='episodes'):
 
         current_state = new_state
         step += 1
-        if step == 1500:
+        if step == 100:
             done = True
 
     min_reward = min(episode_reward)
