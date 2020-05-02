@@ -187,7 +187,7 @@ class Apache_environment:
         reward = np.random.randint(10,100)
         return reward - Apache_environment.def_perf
 
-    def get_reward(self,cur_state,Apache_environment.total_req,Apache_environment.concurrent_req):
+    def get_reward(self,cur_state,total_requests,concurrent_requests):
         value_dict = { 'MaxRequestWorkers':cur_state[0],
         'KeepAliveTimeOut' : cur_state[1],
         'MinSpareThreads' : cur_state[2],
@@ -209,7 +209,7 @@ class Apache_environment:
 
         return_val = subprocess.call("sudo /opt/bitnami/ctlscript.sh restart apache",shell=True)
         if return_val == 0:
-            ab_command = "ab -n " +str(Apache_environment.total_req) + " " + str(Apache_environment.concurrent_req) + " -r https://54.191.74.174/ >/home/output.txt 2>&1"
+            ab_command = "ab -n " +str(total_requests) + " -c " + str(concurrent_requests) + " -r https://54.191.74.174/ >/home/output.txt 2>&1"
             return_code = subprocess.call(ab_command,shell=True)
             if return_code == 0:
                 search = open("/home/output.txt")
