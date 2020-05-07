@@ -395,7 +395,7 @@ def train_dqn_agent(Agent,environment):
                 action = np.argmax(agent.get_qs(current_state))
             else:
                 # Get random action
-                action = np.random.randint(0, 24)
+                action = np.random.randint(0, 20)
 
             print("Action is: ",action)
             # new_state, reward, done = env.step(action)
