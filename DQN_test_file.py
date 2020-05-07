@@ -208,7 +208,8 @@ class Apache_environment:
     #     return reward - Apache_environment.def_perf
 
     def get_reward(self,cur_state,total_requests,concurrent_requests):
-        value_dict = { 'KeepAliveTimeOut' : cur_state[1],
+        value_dict = { 'MaxRequestWorkers':cur_state[0],
+        'KeepAliveTimeOut' : cur_state[1],
         'MinSpareThreads' : cur_state[2],
         'MaxSpareThreads' : cur_state[3],
         'ThreadsPerChild' : cur_state[4],
