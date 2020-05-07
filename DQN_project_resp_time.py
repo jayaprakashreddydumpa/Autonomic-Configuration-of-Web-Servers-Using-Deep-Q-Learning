@@ -25,7 +25,7 @@ MIN_REWARD = -200  # For model save
 MEMORY_FRACTION = 0.20
 
 # Environment settings
-EPISODES = 3
+EPISODES = 300
 
 # Exploration settings
 EPSILON = 1  # not a constant, going to be decayed
@@ -412,7 +412,7 @@ def train_dqn_agent(Agent,environment):
 
             current_state = new_state
             step += 1
-            if step == 5:
+            if step == 150:
                 done = True
 
         min_reward = min(episode_reward)
