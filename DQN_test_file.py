@@ -169,21 +169,19 @@ class Apache_environment:
             elif param_index == 5:#Modifying the MaxConnectionsPerChild param
                 current_state[param_index] += 250
 
-        #When action is to DECREASE
+       #When action is to DECREASE
         if action_to_perform == "010":
-            if param_index == 1: #if keepAliveTimeOut is increased, dont have to change other param values
+            #Modifying ThreadsPerChild or ServerLimit or StartServers or KeepAliveTimeOut
+            if param_index == 4 or param_index == 1 or param_index == 7 or param_index == 6: 
                 current_state[param_index] -= 1
-            elif param_index == 4: #if ThreadsPerChild is modified, then its dependent param "MaxRequestWorkers" has to be modified accordingly
-                current_state[param_index] -= 1
-                #decreasing hte MaxRequestWorkers since the ThreadsPerChild has been decreased
-                current_state[0] = current_state[param_index]*current_state[6]
-            elif param_index == 7: #if StartServers is changed, make sure its >= ServerLimit, and its dependent param "MinSpareThreads" needs to be changed accordingly
-                current_state[param_index] -= 1
-            elif param_index == 6: #Modyfying the ServeLimit param, and also modifying MaxRequestWorkers since its dependent on ThreadsPerChild and ServerLimit
-                current_state[param_index] -= 1
-                current_state[0] = current_state[param_index]*current_state[4] #Modifies MaxRequestWorkers
             elif param_index == 5: #Modifying the MaxConnectionsPerChild param
-                current_state[param_index] -= 250
+                if current_state[param_index] - 250 > 0:
+                    current_state[param_index] -= 250
+                else:
+                    current_state[param_index] = 5000
+            #Modifying the MaxRequestWorkers if there is a modification in ThreadsPerChild
+            if param_index == 4:
+                current_state[0] = current_state[param_index]*current_state[6]
             
         #When the action_to_perform is "001" which is NEUTRAL, then we make no changes and the current_state is directly assigned as the
         #new_state
