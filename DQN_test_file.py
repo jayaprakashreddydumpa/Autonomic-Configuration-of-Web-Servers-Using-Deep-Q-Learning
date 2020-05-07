@@ -293,7 +293,7 @@ class DQNAgent:
         model.add(Activation("relu"))
         model.add(Dropout(0.2))
 
-        model.add(Dense(21, activation="linear"))
+        model.add(Dense(20, activation="linear"))
         model.compile(loss="mse", optimizer=Adam(lr=0.001), metrics=['accuracy'])
         print(model.summary)
         return model
@@ -395,7 +395,7 @@ for episode in tqdm(range(1, EPISODES + 1), ascii=True, unit='episodes'):
             action = np.argmax(agent.get_qs(current_state))
         else:
             # Get random action
-            action = np.random.randint(0, 24)
+            action = np.random.randint(0, 20)
 
         print(action)
         
