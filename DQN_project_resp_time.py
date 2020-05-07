@@ -40,50 +40,15 @@ SHOW_PREVIEW = False
 # CREATING STATE AND ACTION SPACE , ALSO CREATING VIRTUAL REWARDS FOR TESTING
 #-----------------------------------------------------------------------------------------------------------
 
-# def return_all_possible_states(state_index,range_val,default_state,state_name):
-#     state_dict = []
-#     start = range_val[0]
-#     end = range_val[1]
-#     for i in range(start,end+1):
-#         default_state[state_index] = i
-#         state_dict.append(list(default_state))
-#     return state_dict
-
-# def all_possible_states(state_dict,state_list):
-#     possible_states = []
-#     for key in state_list.keys():
-#         states = state_dict.get(key)
-#         for state in states:
-#             if state not in possible_states:
-#                 possible_states.append(state)
-#     return possible_states
-
 state_list = {"MaxRequestWorkers":0,"KeepAliveTimeOut":1,"MinSpareThreads":2,"MaxSpareThreads":3,"ThreadsPerChild":4,"MaxConnectionsPerChild":5,"ServerLimit":6,"StartServers":7}
 
-action_space = action_space = [["MaxRequestWorkers",[(1,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)]],
-                ["KeepAliveTimeOut",[(0,0,0),(1,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)]],
-                ["MinSpareThreads",[(0,0,0),(0,0,0),(1,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)]],
-                ["MaxSpareThreads",[(0,0,0),(0,0,0),(0,0,0),(1,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)]],
-                ["ThreadsPerChild",[(0,0,0),(0,0,0),(0,0,0),(0,0,0),(1,0,0),(0,0,0),(0,0,0),(0,0,0)]],
-                ["MaxConnectionsPerChild",[(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(1,0,0),(0,0,0),(0,0,0)]],
-                ["ServerLimit",[(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(1,0,0),(0,0,0)]],
-                ["StartServers",[(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(1,0,0)]],
-                ["MaxRequestWorkers",[(0,1,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)]],
-                ["KeepAliveTimeOut",[(0,0,0),(0,1,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)]],
-                ["MinSpareThreads",[(0,0,0),(0,0,0),(0,1,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)]],
-                ["MaxSpareThreads",[(0,0,0),(0,0,0),(0,0,0),(0,1,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)]],
-                ["ThreadsPerChild",[(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,1,0),(0,0,0),(0,0,0),(0,0,0)]],
-                ["MaxConnectionsPerChild",[(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,1,0),(0,0,0),(0,0,0)]],
-                ["ServerLimit",[(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,1,0),(0,0,0)]],
-                ["StartServers",[(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,1,0)]],
-                ["MaxRequestWorkers",[(0,0,1),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)]],
-                ["KeepAliveTimeOut",[(0,0,0),(0,0,1),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)]],
-                ["MinSpareThreads",[(0,0,0),(0,0,0),(0,0,1),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)]],
-                ["MaxSpareThreads",[(0,0,0),(0,0,0),(0,0,0),(0,0,1),(0,0,0),(0,0,0),(0,0,0),(0,0,0)]],
-                ["ThreadsPerChild",[(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,1),(0,0,0),(0,0,0),(0,0,0)]],
-                ["MaxConnectionsPerChild",[(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,1),(0,0,0),(0,0,0)]],
-                ["ServerLimit",[(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,1),(0,0,0)]],
-                ["StartServers",[(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,1)]]]
+#100 => INCREASE,   010 => DECREASE,   001 => NEUTRAL
+action_space = [["KeepAliveTimeOut","100"],["MinSpareThreads","100"],["MaxSpareThreads","100"],["ThreadsPerChild","100"],
+                ["MaxConnectionsPerChild","100"],["ServerLimit","100"],["StartServers","100"],["KeepAliveTimeOut","010"],
+                ["MinSpareThreads","010"],["MaxSpareThreads","010"],["ThreadsPerChild","010"],["MaxConnectionsPerChild","010"],
+                ["ServerLimit","010"],["StartServers","010"],["KeepAliveTimeOut","001"],["MinSpareThreads","001"],
+                ["MaxSpareThreads","001"],["ThreadsPerChild","001"],["MaxConnectionsPerChild","001"],
+                ["ServerLimit","001"],["StartServers","001"]]
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -177,24 +142,54 @@ class Apache_environment:
 
     def step(self,action,current_state,episode,test=False):
         parameter = action_space[action][0]
+        action_to_perform = action_space[action][1]
         param_index = state_list.get(parameter)
-        if param_index == 1: #if keepAliveTimeOut is increased, dont have to change other param values
-            current_state[param_index] += 1
-        elif param_index == 4: #if ThreadsPerChild is modified, then its dependent param "MaxRequestWorkers" has to be modified accordingly
-            current_state[param_index] += 1
-            if current_state[param_index] > 64:
-                current_state[param_index] = 64
-            else:
-                current_state[0] = current_state[param_index]*current_state[6]
-        elif param_index == 7: #if StartServers is changed, make sure its >= ServerLimit, and its dependent param "MinSpareThreads" needs to be changed accordingly
-            current_state[param_index] += 1
-            if current_state[param_index] >  current_state[6]: #since ServerLimit is modified, it dependent param "MaxSpareThreads" needs to be modified
-                current_state[6] =  current_state[6] + abs(current_state[param_index] - current_state[6])
-                current_state[3] = current_state[6]*current_state[param_index]
-
-            #since ServerLimit is modified, it dependent param "MaxSpareThreads" needs to be modified
-            current_state[2] = current_state[param_index]*current_state[param_index]
         
+        #When the action is to INCREASE 
+        if action_to_perform == "100":
+            if param_index == 1: #if keepAliveTimeOut is increased, dont have to change other param values
+                current_state[param_index] += 1
+            elif param_index == 4: #if ThreadsPerChild is modified, then its dependent param "MaxRequestWorkers" has to be modified accordingly
+                current_state[param_index] += 1
+                if current_state[param_index] > 64:
+                    current_state[param_index] = 64
+                else:
+                    current_state[0] = current_state[param_index]*current_state[6]
+            elif param_index == 7: #if StartServers is changed, make sure its >= ServerLimit, and its dependent param "MinSpareThreads" needs to be changed accordingly
+                current_state[param_index] += 1
+                if current_state[param_index] >  current_state[6]: #since ServerLimit is modified, it dependent param "MaxSpareThreads" needs to be modified
+                    #Increase ServerLimit based on the difference in value between ServerLimit and StartServers
+                    current_state[6] =  current_state[6] + abs(current_state[param_index] - current_state[6])
+
+                    #Only Increase MaxSpareThreads param if the new value is greater than the present value
+                    if current_state[6]*current_state[param_index] > current_state[3]:
+                        current_state[3] = current_state[6]*current_state[param_index]
+            elif param_index == 6: #Modyfying the ServeLimit param, and also modifying MaxRequestWorkers since its dependent on ThreadsPerChild and ServerLimit
+                current_state[param_index] += 1
+                current_state[0] = current_state[param_index]*current_state[4] #Modifies MaxRequestWorkers
+                #since ServerLimit is modified, it dependent param "MaxSpareThreads" needs to be modified
+                #and only if the new value is greater than the present value
+                if current_state[param_index]*current_state[param_index] > current_state[2]:
+                    current_state[2] = current_state[param_index]*current_state[param_index]
+            elif param_index == 5:#Modifying the MaxConnectionsPerChild param
+                current_state[param_index] += 250
+
+        #When action is to DECREASE
+        if action_to_perform == "010":
+            #Modifying ThreadsPerChild or ServerLimit or StartServers or KeepAliveTimeOut
+            if param_index == 4 or param_index == 1 or param_index == 7 or param_index == 6: 
+                current_state[param_index] -= 1
+            elif param_index == 5: #Modifying the MaxConnectionsPerChild param
+                if current_state[param_index] - 250 > 0:
+                    current_state[param_index] -= 250
+                else:
+                    current_state[param_index] = 5000
+            #Modifying the MaxRequestWorkers if there is a modification in ThreadsPerChild
+            if param_index == 4:
+                current_state[0] = current_state[param_index]*current_state[6]
+
+        #When the action_to_perform is "001" which is NEUTRAL, then we make no changes and the current_state is directly assigned as the
+        #new_state
 
         new_state = current_state
         if episode%30 == 0:
@@ -203,20 +198,13 @@ class Apache_environment:
             if temp_tot_req > temp_conc_req:
                 Apache_environment.total_req = temp_tot_req
                 Apache_environment.concurrent_req = temp_conc_req
-        
-            
+             
         if test==True:
             reward = self.get_reward(current_state,5000,500)
         else:
             reward = self.get_reward(current_state,Apache_environment.total_req,Apache_environment.concurrent_req)
 
         return new_state, reward
-
-    # def get_simulated_reward(self):
-    #     # def_perf = 7.01
-    #     # reward = virtual_rewards[all_states.index(cur_state)]
-    #     reward = np.random.randint(10,100)
-    #     return reward - Apache_environment.def_perf
 
     def get_reward(self,cur_state,total_requests,concurrent_requests):
         value_dict = { 'MaxRequestWorkers':cur_state[0],
@@ -304,7 +292,7 @@ class DQNAgent:
         model.add(Activation("relu"))
         model.add(Dropout(0.2))
 
-        model.add(Dense(24, activation="linear"))
+        model.add(Dense(20, activation="linear"))
         model.compile(loss="mse", optimizer=Adam(lr=0.001), metrics=['accuracy'])
         print(model.summary)
         return model
@@ -429,7 +417,7 @@ def train_dqn_agent(Agent,environment):
 
         min_reward = min(episode_reward)
         max_reward = max(episode_reward)
-        agent.tensorboard.update_stats(reward_min=min_reward, reward_max=max_reward, epsilon=epsilon)
+        agent.tensorboard.update_stats(total_reward=total_reward,reward_min=min_reward, reward_max=max_reward, epsilon=epsilon)
         # if min_reward >= MIN_REWARD:
         #         agent.model.save(f'models/{MODEL_NAME}__{max_reward:_>7.2f}max_{average_reward:_>7.2f}avg_{min_reward:_>7.2f}min__{int(time.time())}.model')
         if total_reward > best_reward:
@@ -445,6 +433,9 @@ def train_dqn_agent(Agent,environment):
         return max(final_best_rewards)
 
 
+#-----------------------------------------------------------------------------------------------------------
+#TESTING THE DEEP-Q NETWORK 
+#-----------------------------------------------------------------------------------------------------------
 def test(model, env,episode):
     done = False
     current_state = env.reset()
