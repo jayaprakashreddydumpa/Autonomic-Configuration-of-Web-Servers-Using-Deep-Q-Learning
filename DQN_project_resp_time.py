@@ -178,7 +178,10 @@ class Apache_environment:
         if action_to_perform == "010":
             #Modifying ThreadsPerChild or ServerLimit or StartServers or KeepAliveTimeOut
             if param_index == 4 or param_index == 1 or param_index == 7 or param_index == 6: 
-                current_state[param_index] -= 1
+                if curren_state[param_index] - 1 > 0:
+                    current_state[param_index] -= 1
+                else:
+                    current_state[param_index] = 1
             elif param_index == 5: #Modifying the MaxConnectionsPerChild param
                 if current_state[param_index] - 250 > 0:
                     current_state[param_index] -= 250
