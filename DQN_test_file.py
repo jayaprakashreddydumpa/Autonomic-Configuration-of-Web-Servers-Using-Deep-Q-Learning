@@ -120,15 +120,15 @@ class Apache_environment:
     #Getting the default performance using the initial values
     return_code = subprocess.call("ab -n 1000 -c 100 -r https://54.191.74.174/ >/home/output.txt 2>&1",shell=True)
     line = ""
-    req_per_second = ""
+    time_per_req = ""
     if return_code == 0:
         search = open("/home/output.txt")
-        string = "Requests per second:"
+        string = "mean, across all concurrent requests"
         for line in search.readlines():
             if string in line:
-                req_per_second = re.sub('[^\d\.]', '', line)
+                time_per_req = re.sub('[^\d\.]', '', line)
                 break 
-    def_perf = float(req_per_second)
+    def_perf = float(time_per_req)
     total_req = 1000
     concurrent_req = 100
 
@@ -232,13 +232,13 @@ class Apache_environment:
             return_code = subprocess.call(ab_command,shell=True)
             if return_code == 0:
                 search = open("/home/output.txt")
-                string = "Requests per second:"
+                string = "mean, across all concurrent requests"
                 for line in search.readlines():
                     if string in line:
-                        req_per_second = re.sub('[^\d\.]', '', line)
+                        time_per_req = re.sub('[^\d\.]', '', line)
                         break 
         
-        return float(req_per_second) - Apache_environment.def_perf
+        return float(time_per_req) - Apache_environment.def_perf
 
 #-----------------------------------------------------------------------------------------------------------
 #DEFINING THE DEEP-Q NETWORK AGENT
