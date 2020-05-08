@@ -10,7 +10,6 @@ import time
 import random
 from tqdm import tqdm
 import os
-# import cv2
 import re
 np.warnings.filterwarnings('ignore')
 import subprocess
@@ -101,10 +100,10 @@ class ModifiedTensorBoard(TensorBoard):
 class Apache_environment:
 
     #Getting the default performance using the initial values
-    return_code = subprocess.call("ab -n 1000 -c 100 -r https://54.191.74.174/ >/home/output.txt 2>&1",shell=True)
+    return_code = subprocess.run("ab -n 1000 -c 100 -r https://54.191.74.174/ >/home/output.txt 2>&1",shell=True)
     line = ""
     time_per_req = ""
-    if return_code == 0:
+    if return_code.returncode == 0:
         search = open("/home/output.txt")
         string = "mean, across all concurrent requests"
         for line in search.readlines():
@@ -133,8 +132,8 @@ class Apache_environment:
         i = 0
         for key,value in value_dict.items():
             command = "sed -i '" + str(line_numbers[i]) + "s/" + str(key) + ".*/" + str(key) + "    " + str(value) + "/'  /opt/bitnami/apache2/conf/bitnami/httpd.conf"
-            run = subprocess.call(command,shell=True)
-            if run != 0:
+            run = subprocess.run(command,shell=True)
+            if run.returncode != 0:
                 print("Error code: Couldnt execute sed command")
                 exit()
             i += 1 
@@ -178,7 +177,7 @@ class Apache_environment:
         if action_to_perform == "010":
             #Modifying ThreadsPerChild or ServerLimit or StartServers or KeepAliveTimeOut
             if param_index == 4 or param_index == 1 or param_index == 7 or param_index == 6: 
-                if curren_state[param_index] - 1 > 0:
+                if current_state[param_index] -1  > 0:
                     current_state[param_index] -= 1
                 else:
                     current_state[param_index] = 1
@@ -190,6 +189,8 @@ class Apache_environment:
             #Modifying the MaxRequestWorkers if there is a modification in ThreadsPerChild
             if param_index == 4:
                 current_state[0] = current_state[param_index]*current_state[6]
+            elif param_index == 6:
+                current_state[0] = current_state[param_index]*current_state[4]
 
         #When the action_to_perform is "001" which is NEUTRAL, then we make no changes and the current_state is directly assigned as the
         #new_state
@@ -223,18 +224,17 @@ class Apache_environment:
         i = 0
         for key,value in value_dict.items():
             command = "sed -i '" + str(line_numbers[i]) + "s/" + str(key) + ".*/" + str(key) + "    " + str(value) + "/'  /opt/bitnami/apache2/conf/bitnami/httpd.conf"
-            run = subprocess.call(command,shell=True)
-            print(command,run)
-            if run != 0:
+            run = subprocess.run(command,shell=True)
+            if run.returncode != 0:
                 print("Error code: Couldnt execute sed command")
                 exit()
             i += 1 
 
-        return_val = subprocess.call("sudo /opt/bitnami/ctlscript.sh restart apache",shell=True)
-        if return_val == 0:
+        return_val = subprocess.run("sudo /opt/bitnami/ctlscript.sh restart apache",shell=True)
+        if return_val.returncode == 0:
             ab_command = "ab -n " +str(total_requests) + " -c " + str(concurrent_requests) + " -r https://54.191.74.174/ >/home/output.txt 2>&1"
-            return_code = subprocess.call(ab_command,shell=True)
-            if return_code == 0:
+            return_code = subprocess.run(ab_command,shell=True)
+            if return_code.returncode == 0:
                 search = open("/home/output.txt")
                 string = "mean, across all concurrent requests"
                 for line in search.readlines():
@@ -400,7 +400,6 @@ def train_dqn_agent(Agent,environment):
                 # Get random action
                 action = np.random.randint(0, 20)
 
-            print("Action is: ",action)
             # new_state, reward, done = env.step(action)
             new_state, reward= env.step(action,current_state,episode,False)
 
@@ -415,7 +414,7 @@ def train_dqn_agent(Agent,environment):
 
             current_state = new_state
             step += 1
-            if step == 150:
+            if step == 75:
                 done = True
 
         min_reward = min(episode_reward)
@@ -432,8 +431,8 @@ def train_dqn_agent(Agent,environment):
         if epsilon > MIN_EPSILON:
             epsilon *= EPSILON_DECAY
             epsilon = max(MIN_EPSILON, epsilon)
-        
-        return max(final_best_rewards)
+    agent.target_model.save(f'models/{MODEL_NAME}_final.model')
+    return max(final_best_rewards)
 
 
 #-----------------------------------------------------------------------------------------------------------
