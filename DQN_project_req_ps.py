@@ -258,44 +258,43 @@ class DQNAgent:
         self.target_update_counter = 0
 
     def create_model(self):
-        with tf.device('/GPU:0'):
-            model = Sequential()
-            model.add(Dense(32,kernel_initializer='random_normal', input_dim=8))
-            model.add(Activation("relu"))
-            model.add(Dropout(0.2))
+        model = Sequential()
+        model.add(Dense(32,kernel_initializer='random_normal', input_dim=8))
+        model.add(Activation("relu"))
+        model.add(Dropout(0.2))
 
-            model.add(Dense(32,kernel_initializer='random_normal'))
-            model.add(Activation("relu"))
-            model.add(Dropout(0.2))
+        model.add(Dense(32,kernel_initializer='random_normal'))
+        model.add(Activation("relu"))
+        model.add(Dropout(0.2))
 
-            model.add(Dense(32,kernel_initializer='random_normal'))
-            model.add(Activation("relu"))
-            model.add(Dropout(0.2))
+        model.add(Dense(32,kernel_initializer='random_normal'))
+        model.add(Activation("relu"))
+        model.add(Dropout(0.2))
 
-            model.add(Dense(32,kernel_initializer='random_normal'))
-            model.add(Activation("relu"))
-            model.add(Dropout(0.2))
+        model.add(Dense(32,kernel_initializer='random_normal'))
+        model.add(Activation("relu"))
+        model.add(Dropout(0.2))
 
-            model.add(Dense(32,kernel_initializer='random_normal'))
-            model.add(Activation("relu"))
-            model.add(Dropout(0.2))
+        model.add(Dense(32,kernel_initializer='random_normal'))
+        model.add(Activation("relu"))
+        model.add(Dropout(0.2))
 
-            model.add(Dense(32,kernel_initializer='random_normal'))
-            model.add(Activation("relu"))
-            model.add(Dropout(0.2))
+        model.add(Dense(32,kernel_initializer='random_normal'))
+        model.add(Activation("relu"))
+        model.add(Dropout(0.2))
 
-            model.add(Dense(32,kernel_initializer='random_normal'))
-            model.add(Activation("relu"))
-            model.add(Dropout(0.2))
+        model.add(Dense(32,kernel_initializer='random_normal'))
+        model.add(Activation("relu"))
+        model.add(Dropout(0.2))
 
-            model.add(Dense(32,kernel_initializer='random_normal'))
-            model.add(Activation("relu"))
-            model.add(Dropout(0.2))
+        model.add(Dense(32,kernel_initializer='random_normal'))
+        model.add(Activation("relu"))
+        model.add(Dropout(0.2))
 
-            model.add(Dense(20, activation="linear"))
-            model.compile(loss="mse", optimizer=Adam(lr=0.001), metrics=['accuracy'])
-            print(model.summary)
-            return model
+        model.add(Dense(20, activation="linear"))
+        model.compile(loss="mse", optimizer=Adam(lr=0.001), metrics=['accuracy'])
+        print(model.summary)
+        return model
 
     def update_replay_memory(self, transition):
         self.replay_memory.append(transition)
