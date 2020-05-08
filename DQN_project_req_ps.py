@@ -176,7 +176,10 @@ class Apache_environment:
         if action_to_perform == "010":
             #Modifying ThreadsPerChild or ServerLimit or StartServers or KeepAliveTimeOut
             if param_index == 4 or param_index == 1 or param_index == 7 or param_index == 6: 
-                current_state[param_index] -= 1
+                if current_state[param_index] - 1  > 0:
+                    current_state[param_index] -= 1
+                else:
+                    current_state[param_index] = 1
             elif param_index == 5: #Modifying the MaxConnectionsPerChild param
                 if current_state[param_index] - 250 > 0:
                     current_state[param_index] -= 250
@@ -220,8 +223,8 @@ class Apache_environment:
         i = 0
         for key,value in value_dict.items():
             command = "sed -i '" + str(line_numbers[i]) + "s/" + str(key) + ".*/" + str(key) + "    " + str(value) + "/'  /opt/bitnami/apache2/conf/bitnami/httpd.conf"
-            run = subprocess.call(command,shell=True)
-            if run != 0:
+            run = subprocess.run(command,shell=True)
+            if run.returncode != 0:
                 print("Error code: Couldnt execute sed command")
                 exit()
             i += 1 
@@ -394,7 +397,7 @@ def train_dqn_agent(Agent,environment):
                 action = np.argmax(agent.get_qs(current_state))
             else:
                 # Get random action
-                action = np.random.randint(0, 24)
+                action = np.random.randint(0, 20)
 
             # new_state, reward, done = env.step(action)
             new_state, reward= env.step(action,current_state,episode,False)
@@ -428,8 +431,8 @@ def train_dqn_agent(Agent,environment):
             epsilon *= EPSILON_DECAY
             epsilon = max(MIN_EPSILON, epsilon)
 
-        agent.target_model.save(f'models/{MODEL_NAME}final.model')
-        return max(final_best_rewards)
+    agent.target_model.save(f'models/{MODEL_NAME}final.model')
+    return max(final_best_rewards)
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -452,15 +455,15 @@ if __name__ == "__main__":
     env = Apache_environment()
     agent = DQNAgent()
 
-    #Getiing back the best reward from the training of the DQNAgent on the environment
+    #Geting back the best reward from the training of the DQNAgent on the environment
     best_reward = train_dqn_agent(agent, env)
     print("Best reward after Training is: ",best_reward)
-    # #Loading the model based on the best_reward obtained from the saved models
-    # LOAD_MODEL = f'models/{MODEL_NAME}__best_reward__{best_reward:_>7.2f}.model'
-    # test_model = load_model(LOAD_MODEL)
+    #Loading the model based on the best_reward obtained from the saved models
+    LOAD_MODEL = f'models/{MODEL_NAME}__best_reward__{best_reward:_>7.2f}.model'
+    test_model = load_model(LOAD_MODEL)
 
-    # for episode in range(2):
-    #     reward = test(test_model,env,episode)
-    #     print("Test Episode#:{} reward:{}".format(episode,reward) )
+    for episode in range(2):
+         reward = test(test_model,env,episode)
+         print("Test Episode#:{} reward:{}".format(episode,reward) )
 
 
