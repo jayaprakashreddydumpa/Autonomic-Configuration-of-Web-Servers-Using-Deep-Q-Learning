@@ -242,7 +242,7 @@ class Apache_environment:
                         time_per_req = re.sub('[^\d\.]', '', line)
                         break 
         
-        return float(time_per_req) - Apache_environment.def_perf
+        return Apache_environment.def_perf - float(time_per_req)
 
 #-----------------------------------------------------------------------------------------------------------
 #DEFINING THE DEEP-Q NETWORK AGENT
