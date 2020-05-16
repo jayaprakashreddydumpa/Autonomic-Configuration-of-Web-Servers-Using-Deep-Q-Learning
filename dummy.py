@@ -1,7 +1,7 @@
 import numpy as np
 import keras.backend.tensorflow_backend as backend
 from keras.models import Sequential, load_model
-from keras.layers import Dense, Dropout, Conv2D, MaxPooling2D, Activation, Flatten,LSTM
+from keras.layers import Dense, Dropout, Activation
 from keras.optimizers import Adam
 from keras.callbacks import TensorBoard
 import tensorflow as tf
@@ -10,7 +10,6 @@ import time
 import random
 from tqdm import tqdm
 import os
-# import cv2
 import re
 np.warnings.filterwarnings('ignore')
 import subprocess
@@ -95,13 +94,14 @@ class ModifiedTensorBoard(TensorBoard):
     # Creates writer, writes custom metrics and closes writer
     def update_stats(self, **stats):
         self._write_logs(stats, self.step)
+        
 #-----------------------------------------------------------------------------------------------------------
 # CREATING THE APACHE ENVIRONMENT
 #-----------------------------------------------------------------------------------------------------------
 class Apache_environment:
 
     #Getting the default performance using the initial values
-    return_code = subprocess.run("ab -n 1000 -c 100 -r https://34.220.141.200/ >/home/output.txt 2>&1",shell=True)
+    return_code = subprocess.run("ab -n 1000 -c 100 -r machine-public-ip >/home/output.txt 2>&1",shell=True)
     line = ""
     req_per_second = ""
     if return_code.returncode == 0:
@@ -218,12 +218,9 @@ class Apache_environment:
 
         new_state = current_state
         if episode%30 == 0:
-            temp_tot_req = np.random.randint(1000,5000)
-            temp_conc_req = np.random.randint(10,1000)
-            # if temp_tot_req > temp_conc_req:
-            #     Apache_environment.total_req = temp_tot_req
-            #     Apache_environment.concurrent_req = temp_conc_req
-             
+            Apache_environment.total_req = np.random.randint(1000,5000)
+            Apache_environment.concurrent_req = np.random.randint(10,1000)
+            
         if test==True:
             print("We are TESTING the DQN Agent")
             temp_tot_req = np.random.randint(1000,5000)
@@ -257,7 +254,7 @@ class Apache_environment:
 
         return_val = subprocess.run("sudo /opt/bitnami/ctlscript.sh restart apache",shell=True)
         if return_val.returncode == 0:
-            ab_command = "ab -n " +str(total_requests) + " -c " + str(concurrent_requests) + " -r https://34.220.141.200/ >/home/output.txt 2>&1"
+            ab_command = "ab -n " +str(total_requests) + " -c " + str(concurrent_requests) + " -r machine-public-ip >/home/output.txt 2>&1"
             return_code = subprocess.run(ab_command,shell=True)
             if return_code.returncode == 0:
                 search = open("/home/output.txt")
@@ -384,12 +381,11 @@ class DQNAgent:
             self.target_model.set_weights(self.model.get_weights())
             self.target_update_counter = 0
         
-         # Queries main network for Q values given current observation space (environment state)
+    # Queries main network for Q values given current observation space (environment state)
     def get_qs(self, state):
         my_state = np.asarray(state)
         return self.model.predict(np.array(my_state).reshape(-1, *my_state.shape))
-        # print("the predicted value is:",self.model.predict(np.asarray(state)))
-        # return self.model.predict(np.asarray(state))
+       
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -445,8 +441,7 @@ def train_dqn_agent(Agent,environment):
         min_reward = min(episode_reward)
         max_reward = max(episode_reward)
         agent.tensorboard.update_stats(total_reward=total_reward,reward_min=min_reward, reward_max=max_reward, epsilon=epsilon)
-        # if min_reward >= MIN_REWARD:
-        #         agent.model.save(f'models/{MODEL_NAME}__{max_reward:_>7.2f}max_{average_reward:_>7.2f}avg_{min_reward:_>7.2f}min__{int(time.time())}.model')
+       
         if total_reward > best_reward:
             final_best_rewards.append(best_reward)
             best_reward = total_reward
@@ -480,17 +475,10 @@ def test(model, env,episode):
 if __name__ == "__main__":
     env = Apache_environment()
     agent = DQNAgent()
-
+    
     #Getiing back the best reward from the training of the DQNAgent on the environment
     best_reward = train_dqn_agent(agent, env)
     print("Best reward after Training is: ",best_reward)
-    # #Loading the model based on the best_reward obtained from the saved models
-    # LOAD_MODEL = f'models/{MODEL_NAME}__best_reward__{best_reward:_>7.2f}.model'
-    # test_model = load_model(LOAD_MODEL)
-
-    # for episode in range(2):
-    #     reward = test(test_model,env,episode)
-    #     print("Test Episode#:{} reward:{}".format(episode,reward) )
-
+    
 
 
