@@ -1,8 +1,35 @@
 # CMPE295
 Masters-Project
-
-  Accessing information, which was once considered a strenuous job has now become effortless. This was made possible with the evolution of World Wide Web efficiently running on servers. A Web Server’s main task is to bridge the gap between the user and the data. The transfer of requested data from a web page or any web application mainly depends on two factors: Internet traffic and web server residing on a host machine. The more responsive a web server is, the more quickly it can return the requested results to the user which is basically effective handling of internet traffic.
-
-  The ease of handling internet traffic mainly relies on tuning the parameters of a web server to optimal values. Since a server can host multiple applications or web pages which have their own profiles, it is challenging to manually configure these parameters. Many previous studies revealed that more than 50% root causes of Internet service outages were due to system misconfiguration caused by operator mistakes. So it is very crucial to configure the web server with optimal values. 
   
-  In this project, the main idea is to implement an algorithm based on deep reinforcement learning to automate the web server configuration. Reinforcement Learning is a promising mode which makes decisions based on the output of previous states. The combination of this model with a neural network further enhances its learning power which is a much more efficient approach for handling dynamic decision-making problems. So We plan on implementing a Deep-Q Network model on an apache server hosted on a virtual machine environment having different workloads to find the optimal parameters of the web server.
+In this project, the main idea is to implement an algorithm based on deep reinforcement learning to automate the web server configuration. Reinforcement Learning is a promising mode which makes decisions based on the output of previous states. The combination of this model with a neural network further enhances its learning power which is a much more efficient approach for handling dynamic decision-making problems. So We plan on implementing a Deep-Q Network model on an apache server hosted on a virtual machine environment having different workloads to find the optimal parameters of the web server.
+
+
+Project Requirements:
+  TensorFlow version 2.1
+  Keras
+  Python3.7 or latest
+  TensorBoard
+  Tqdm
+  Subprocess.run
+  Regex
+
+Before running the code do the following steps:
+  sudo apt update
+  sudo apt install software-properties-common
+  sudo add-apt-repository ppa:deadsnakes/ppa
+  sudo apt update
+  sudo apt install python3.7
+  curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+  python3.7 get-pip.py
+  
+Once the latest python version and pip are installed. Install the project requirements
+  pip install tensorflow==2.1
+  pip install tensorboard
+  pip install subprocess.run
+  pip install keras
+  pip install regex
+  
+ Place the webserver_config_dqn.py and dqn_test.py in the same directory
+ Run the command python3.7 webserver_config_dqn.py -- to train the model
+ Once the training is done, the models would be saved in "models/" subdirectory within the same directory
+ Run the command python3.7 dqn_test.py to test the final model
